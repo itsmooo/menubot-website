@@ -18,7 +18,7 @@ const Testimonials = () => {
               </p>
               <div className="flex items-center gap-3">
                 <img 
-                  src="/placeholder.svg" 
+                  src="/assets/photo-4.png" 
                   alt="Customer" 
                   className="w-10 h-10 rounded-full object-cover" 
                 />
@@ -42,7 +42,7 @@ const Testimonials = () => {
           <div className="relative">
             <div className="absolute -top-10 -left-10 right-10 bottom-10 bg-orange-500 rounded-[40px] transform -rotate-6"></div>
             <img 
-              src="/placeholder.svg" 
+              src="/assets/photo-4.png" 
               alt="Customer Testimonial" 
               className="relative z-10 w-full h-auto rounded-[40px] object-cover"
             />

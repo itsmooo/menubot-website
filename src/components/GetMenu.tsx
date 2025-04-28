@@ -7,7 +7,7 @@ const GetMenu = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <img 
-              src="/placeholder.svg" 
+              src="/assets/illustration-4.png" 
               alt="Mobile App" 
               className="w-full max-w-md mx-auto" 
             />
