@@ -72,7 +72,6 @@ const BestRestaurants = () => {
       reviews: 124,
       category: "Somali Cuisine",
       time: "15-20 min",
-    
     },
     {
       id: 3,
@@ -82,7 +81,6 @@ const BestRestaurants = () => {
       reviews: 154,
       category: "Modern Somali",
       time: "25-35 min",
-    
     },
   ];
 
@@ -94,8 +92,10 @@ const BestRestaurants = () => {
             12 Best Restaurants In Your City
           </h2>
           <p className="text-gray-600 max-w-md mt-4 md:mt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore.
+            Explore the top-rated restaurants in your city. Find the best places
+            to enjoy traditional Somali dishes, contemporary meals, or quick
+            bites. Whether you're craving a hearty meal or a light snack, we
+            have options for every taste and schedule.
           </p>
         </div>
 
