@@ -8,7 +8,7 @@ const FoodDelivery = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
             <img 
-              src="/placeholder.svg" 
+              src="/assets/photo-3.png" 
               alt="Food Delivery" 
               className="w-full h-auto rounded-[40px] relative z-10"
               style={{

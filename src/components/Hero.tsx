@@ -19,10 +19,10 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <select className="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500">
                 <option>Choose a Restaurant</option>
-                <option>Pizza Palace</option>
-                <option>Burger Bistro</option>
-                <option>Taco Temple</option>
-                <option>Sushi Supreme</option>
+                <option>Safari Restaurant</option>
+                <option>Xamar Restaurant</option>
+                <option>Mogadishu Kitchen</option>
+                <option>Somali Deli</option>
               </select>
               <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-6 text-lg">
                 ORDER NOW
