@@ -8,15 +8,27 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 10000,
 });
 
-// Add error handling interceptor
+// Add response handling interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Transform the response to match expected format
+    if (response.data) {
+      return {
+        ...response,
+        data: {
+          message: response.data.translation || '',
+          response: response.data.response || '',
+          timestamp: response.data.timestamp || new Date().toISOString()
+        }
+      };
+    }
+    return response;
+  },
   (error) => {
     if (!error.response) {
-      // Network or connection error
       console.error('Network error:', error);
       throw new Error('Network error - Please check if the server is running');
     }
