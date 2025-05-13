@@ -2,52 +2,30 @@ import { api } from '../api';
 
 export interface Order {
   _id: string;
-  customer: {
-    name: string;
-    phoneNumber: string;
-  };
-  items: Array<{
-    name: string;
-    quantity: number;
-    price: number;
-  }>;
-  total: number;
-  status: string;
-  paymentStatus: string;
-  conversation?: {
-    message: string;
-    response: string;
-  };
+  message: string;
+  response: string;
   timestamp: string;
 }
 
 export const orderService = {
-  // Get all orders
   getOrders: async (): Promise<Order[]> => {
-    const response = await api.get<Order[]>('/api/orders');
-    return response.data;
-  },
-
-  // Get a single order
-  getOrder: async (orderId: string): Promise<Order> => {
-    const response = await api.get<Order>(`/api/orders/${orderId}`);
-    return response.data;
-  },
-
-  // Update an order
-  updateOrder: async (orderId: string, data: Partial<Order>): Promise<Order> => {
-    const response = await api.put<Order>(`/api/orders/${orderId}`, data);
-    return response.data;
-  },
-
-  // Delete an order
-  deleteOrder: async (orderId: string): Promise<void> => {
-    await api.delete(`/api/orders/${orderId}`);
-  },
-
-  // Update order status
-  updateOrderStatus: async (orderId: string, status: string): Promise<Order> => {
-    const response = await api.patch<Order>(`/api/orders/${orderId}/status`, { status });
-    return response.data;
+    try {
+      const response = await api.get<Order[]>('/api/orders');
+      console.log('Raw API response:', response);
+      
+      // Ensure we're getting the correct data structure
+      const orders = Array.isArray(response.data) ? response.data : [response.data];
+      
+      // Map and validate each order
+      return orders.map(order => ({
+        _id: order._id || '',
+        message: order.message || '',
+        response: order.response || '',
+        timestamp: order.timestamp || new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
   }
-}; 
+};

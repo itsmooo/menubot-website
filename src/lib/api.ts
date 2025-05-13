@@ -14,8 +14,13 @@ export const api = axios.create({
 // Add response handling interceptor
 api.interceptors.response.use(
   (response) => {
-    // Transform the response to match expected format
-    if (response.data) {
+    // Don't transform the orders data
+    if (response.config.url?.includes('/api/orders')) {
+      return response;
+    }
+    
+    // Transform only chat responses
+    if (response.data && response.config.url?.includes('/api/chatbot')) {
       return {
         ...response,
         data: {
