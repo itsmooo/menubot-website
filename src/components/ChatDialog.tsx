@@ -2,65 +2,87 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SendHorizontal, MessageCircle } from "lucide-react";
-import { useChat } from "@/hooks/useChat";
 import { toast } from "sonner";
+import { generateSomaliResponse, ChatMessage } from "@/lib/cohereService";
 
 interface ChatDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ChatDialog = ({ isOpen, onClose }: ChatDialogProps) => {
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([
-    { text: "Hello! What would you like to order today?", isUser: false }
+export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'assistant', content: "Salaam! Ku soo dhawoow **Somali Delights**! Maxaad dalbanaysaa maanta?" }
   ]);
   const [input, setInput] = useState("");
-  const { sendMessage } = useChat();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const formatMessage = (content: string) => {
+    // Replace **text** with bold styling
+    content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Replace *text* with special offer styling
+    content = content.replace(/\*(.*?)\*/g, '<span class="text-orange-500">$1</span>');
+    return content;
+  };
 
   const handleSend = async () => {
-    if (input.trim()) {
-      setMessages(prev => [...prev, { text: input, isUser: true }]);
-      const userMessage = input;
-      setInput("");
+    if (!input.trim()) {
+      toast.error("Fadlan qor fariin");
+      return;
+    }
 
-      try {
-        const response = await sendMessage.mutateAsync(userMessage);
-        
-        if (response.error) {
-          toast.error("Error processing your message");
-          setMessages(prev => [...prev, { 
-            text: "Sorry, I couldn't process your request. Please try again.", 
-            isUser: false 
-          }]);
-          return;
-        }
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: input.trim()
+    };
 
-        setMessages(prev => [...prev, { 
-          text: response.response, 
-          isUser: false 
-        }]);
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
 
-        if (userMessage.toLowerCase().includes("bixiyay lacagta")) {
-          toast.success("Order confirmed! Thank you for your payment.");
-        }
-      } catch (error) {
-        console.error("Error sending message:", error);
-        toast.error("Failed to send message");
-        setMessages(prev => [...prev, { 
-          text: "Sorry, there was an error processing your message. Please try again.", 
-          isUser: false 
-        }]);
+    try {
+      console.log('Sending message:', userMessage.content);
+      const response = await generateSomaliResponse([...messages, userMessage]);
+      console.log('Received response:', response);
+      
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: response
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      if (input.toLowerCase().includes("bixiyay lacagta")) {
+        toast.success("Dalabkaaga waa la xaqiijiyay! Mahadsanid.");
       }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage = error instanceof Error ? error.message : "Fariin khalad ah";
+      toast.error(errorMessage);
+      
+      setMessages(prev => [...prev, { 
+        role: 'assistant',
+        content: "Waan ka xumahay, khalad ayaa dhacay. Fadlan isku day mar kale." 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=open]:slide-in-from-left-1/2">
+      <DialogContent className="max-w-3xl p-0 transition-all duration-300">
         <div className="bg-gradient-to-r from-[#FFA500] to-[#FFB84D] p-4 rounded-t-lg">
           <div className="flex items-center gap-2">
             <MessageCircle className="text-white" />
-            <h1 className="text-xl font-bold text-white">Quick Order Chat</h1>
+            <h1 className="text-xl font-bold text-white">Somali Delights - Dalabka Dhaqso ah</h1>
           </div>
         </div>
         
@@ -68,20 +90,19 @@ const ChatDialog = ({ isOpen, onClose }: ChatDialogProps) => {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-lg animate-in slide-in-from-bottom-1 duration-300 ${
-                  message.isUser
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  message.role === 'user'
                     ? 'bg-gradient-to-r from-[#FFA500] to-[#FFB84D] text-white'
                     : 'bg-gray-100'
                 }`}
-              >
-                {message.text}
-              </div>
+                dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+              />
             </div>
           ))}
-          {sendMessage.isPending && (
+          {isLoading && (
             <div className="flex justify-start mb-4">
               <div className="bg-gray-100 p-3 rounded-lg">
                 <div className="flex gap-2">
@@ -100,15 +121,15 @@ const ChatDialog = ({ isOpen, onClose }: ChatDialogProps) => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Type your order here..."
+              onKeyPress={handleKeyPress}
+              placeholder="Fariintaaga ku qor halkan..."
               className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              disabled={sendMessage.isPending}
+              disabled={isLoading}
             />
             <Button 
               onClick={handleSend}
               className="bg-gradient-to-r from-[#FFA500] to-[#FFB84D] hover:opacity-90"
-              disabled={sendMessage.isPending}
+              disabled={isLoading}
             >
               <SendHorizontal className="h-5 w-5" />
             </Button>
@@ -117,6 +138,4 @@ const ChatDialog = ({ isOpen, onClose }: ChatDialogProps) => {
       </DialogContent>
     </Dialog>
   );
-};
-
-export default ChatDialog;
+}

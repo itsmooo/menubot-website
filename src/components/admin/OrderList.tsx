@@ -159,7 +159,7 @@ export const OrderList = () => {
         </div>
       </main>
 
-      <Footer className="mt-auto" />
+      <Footer />
     </div>
   );
 };

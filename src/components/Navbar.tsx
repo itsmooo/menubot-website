@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { ShoppingBag } from "lucide-react";
-import ChatDialog from "./ChatDialog";
+import { ChatDialog } from "./ChatDialog";
 
 const Navbar = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -113,6 +113,9 @@ const Navbar = () => {
         </a>
         <a href="/contacts" className="hover:text-orange-500 font-medium">
           Contacts
+        </a>
+        <a href="/admin" className="hover:text-orange-500 font-medium">
+          admin
         </a>
       </div>
 
