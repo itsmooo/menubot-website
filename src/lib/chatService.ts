@@ -3,27 +3,27 @@ export interface ChatMessage {
   content: string;
 }
 
-const API_URL = 'http://127.0.0.1:5000/api/chatbot/chat';
+export interface ChatResponse {
+  response: string;
+  sources: Array<{
+    content: string;
+    score: number;
+  }>;
+}
 
-export const generateSomaliResponse = async (messages: ChatMessage[]) => {
+const API_URL = 'http://127.0.0.1:5001/api/chat';  // Updated to use port 5001
+
+export const generateResponse = async (messages: ChatMessage[]): Promise<ChatResponse> => {
   try {
-    const userMessage = messages[messages.length - 1];
-    
-    if (!userMessage || !userMessage.content) {
-      throw new Error('No message content provided');
-    }
-
     console.log('Sending request to:', API_URL);
-    console.log('Request payload:', { message: userMessage.content });
+    console.log('Request payload:', { messages });
 
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: userMessage.content
-      }),
+      body: JSON.stringify({ messages }),
     });
 
     console.log('Response status:', response.status);
@@ -31,14 +31,10 @@ export const generateSomaliResponse = async (messages: ChatMessage[]) => {
     console.log('Response data:', data);
 
     if (!response.ok) {
-      throw new Error(data.error || 'Server response was not ok');
+      throw new Error(data.detail || 'Server response was not ok');
     }
 
-    if (!data.success || !data.response) {
-      throw new Error('Invalid response format from server');
-    }
-
-    return data.response;
+    return data;
 
   } catch (error) {
     console.error('Error details:', error);

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SendHorizontal, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
-import { generateSomaliResponse, ChatMessage } from "@/lib/cohereService";
+import { generateResponse, ChatMessage } from "@/lib/chatService";
 
 interface ChatDialogProps {
   isOpen: boolean;
@@ -42,12 +42,12 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
 
     try {
       console.log('Sending message:', userMessage.content);
-      const response = await generateSomaliResponse([...messages, userMessage]);
+      const response = await generateResponse([...messages, userMessage]);
       console.log('Received response:', response);
       
       const assistantMessage: ChatMessage = {
         role: 'assistant',
-        content: response
+        content: response.response
       };
 
       setMessages(prev => [...prev, assistantMessage]);
