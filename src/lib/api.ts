@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -20,14 +20,10 @@ api.interceptors.response.use(
     }
     
     // Transform only chat responses
-    if (response.data && response.config.url?.includes('/api/chatbot')) {
+    if (response.data && response.config.url?.includes('/api/chat')) {
       return {
         ...response,
-        data: {
-          message: response.data.translation || '',
-          response: response.data.response || '',
-          timestamp: response.data.timestamp || new Date().toISOString()
-        }
+        data: response.data
       };
     }
     return response;

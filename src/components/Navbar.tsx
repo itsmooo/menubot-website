@@ -114,6 +114,9 @@ const Navbar = () => {
         <a href="/contacts" className="hover:text-orange-500 font-medium">
           Contacts
         </a>
+        <a href="/menu" className="hover:text-orange-500 font-medium">
+          menu
+        </a>
         <a href="/admin" className="hover:text-orange-500 font-medium">
           admin
         </a>
