@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SendHorizontal, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { generateResponse, ChatMessage } from "@/lib/chatService";
+import { MenuDisplay } from "./MenuDisplay";
 
 interface ChatDialogProps {
   isOpen: boolean;
@@ -12,10 +13,12 @@ interface ChatDialogProps {
 
 export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: "Salaam! Ku soo dhawoow **Somali Delights**! Maxaad dalbanaysaa maanta?" }
+    { role: 'assistant', content: "Salaam! Ku soo dhawoow **Geediga Dahabka Restaurant**! Maxaad dalbanaysaa maanta?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
 
   const formatMessage = (content: string) => {
     // Replace **text** with bold styling
@@ -23,6 +26,42 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
     // Replace *text* with special offer styling
     content = content.replace(/\*(.*?)\*/g, '<span class="text-orange-500">$1</span>');
     return content;
+  };
+
+  useEffect(() => {
+    // Parse menu items from the response when available
+    const parseMenuItems = (content: string) => {
+      if (content.includes("Menu") || content.toLowerCase().includes("food")) {
+        const items = content.match(/\*\*(.*?)\*\* - \$(\d+(\.\d+)?)\s+_(.*?)_/g);
+        if (items) {
+          return items.map(item => {
+            const [name, price, description] = item.match(/\*\*(.*?)\*\* - \$(\d+(\.\d+)?)\s+_(.*?)_/)?.slice(1) || [];
+            return {
+              name,
+              price: `$${price}`,
+              description,
+              category: 'Main Dishes'
+            };
+          });
+        }
+      }
+      return null;
+    };
+
+    // Check last message for menu items
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant') {
+      const items = parseMenuItems(lastMessage.content);
+      if (items) {
+        setMenuItems(items);
+        setShowMenu(true);
+      }
+    }
+  }, [messages]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSend();
   };
 
   const handleSend = async () => {
@@ -82,10 +121,10 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
         <div className="bg-gradient-to-r from-[#FFA500] to-[#FFB84D] p-4 rounded-t-lg">
           <div className="flex items-center gap-2">
             <MessageCircle className="text-white" />
-            <h1 className="text-xl font-bold text-white">Somali Delights - Dalabka Dhaqso ah</h1>
+            <h1 className="text-xl font-bold text-white">Geediga Dahabka - Dalabka Dhaqso ah</h1>
           </div>
         </div>
-        
+
         <div className="h-[600px] p-4 overflow-y-auto bg-white">
           {messages.map((message, index) => (
             <div
@@ -114,27 +153,33 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
             </div>
           )}
         </div>
-        
-        <div className="p-4 border-t bg-white rounded-b-lg">
-          <div className="flex gap-2">
+
+        <div className="p-4 border-t">
+          <form onSubmit={handleSubmit} className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Fariintaaga ku qor halkan..."
-              className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              disabled={isLoading}
+              placeholder="Qor fariintaada..."
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <Button 
-              onClick={handleSend}
-              className="bg-gradient-to-r from-[#FFA500] to-[#FFB84D] hover:opacity-90"
+            <Button
+              type="submit"
               disabled={isLoading}
+              className="bg-gradient-to-r from-[#FFA500] to-[#FFB84D] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
             >
-              <SendHorizontal className="h-5 w-5" />
+              <SendHorizontal className="w-5 h-5" />
             </Button>
-          </div>
+          </form>
         </div>
+
+        {showMenu && (
+          <MenuDisplay 
+            isOpen={showMenu} 
+            onClose={() => setShowMenu(false)} 
+            items={menuItems} 
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
