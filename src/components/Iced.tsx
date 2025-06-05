@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCart } from '../contexts/CartContext';
 import { backgroundImage, icedMachiato, icedLatte, icedCappuccino, lemonIcedTea, strawberryIcedTea, mangoIcedTea, peachIcedTea, icedAmericano } from '../assets/images';
 
 const beverageItems = [
@@ -62,6 +63,8 @@ interface BeverageProps {
 }
 
 function BeverageCard({ beverage }: BeverageProps) {
+  const { addToCart } = useCart();
+
   return (
     <div className="flex flex-col items-center group">
       <div className="bg-gray-100 rounded-2xl p-3 mb-3 w-full aspect-square flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-md">
@@ -77,9 +80,18 @@ function BeverageCard({ beverage }: BeverageProps) {
         <h3 className="font-semibold text-gray-800 text-sm mb-1 transition-colors group-hover:text-orange-600">
           {beverage.name}
         </h3>
-        <p className="text-orange-600 font-bold text-sm">
+        <p className="text-orange-600 font-bold text-sm mb-2">
           {beverage.price}
         </p>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            addToCart(beverage);
+          }}
+          className="bg-orange-600 text-white text-sm py-1 px-3 rounded-full hover:bg-orange-700 transition-colors"
+        >
+          Add to Cart
+        </button>
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import IcedBeverages from "./Iced";
 import FastFood from "./FastFood";
+import CartSummary from "./CartSummary";
+import { useCart } from "../contexts/CartContext";
 
 const shakeItems = [
   {
@@ -55,6 +57,8 @@ interface ShakeProps {
 }
 
 function ShakeCard({ shake }: ShakeProps) {
+  const { addToCart } = useCart();
+
   return (
     <div className="flex flex-col items-center group">
       <div className="bg-gray-100 rounded-2xl p-3 mb-3 w-full aspect-square flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-md">
@@ -70,13 +74,20 @@ function ShakeCard({ shake }: ShakeProps) {
         <h3 className="font-semibold text-gray-800 text-sm mb-1 transition-colors group-hover:text-orange-600">
           {shake.name}
         </h3>
-        <p className="text-orange-600 font-bold text-sm">{shake.price}</p>
+        <p className="text-orange-600 font-bold text-sm mb-2">{shake.price}</p>
+        <button
+          onClick={() => addToCart(shake)}
+          className="bg-orange-600 text-white text-sm py-1 px-3 rounded-full hover:bg-orange-700 transition-colors"
+        >
+          Add to Cart
+        </button>
       </div>
     </div>
   );
 }
 
 export default function Menu() {
+  const { totalItems } = useCart();
   return (
     <div className="min-h-screen flex flex-col">
       {/* Background Image with Overlay */}
@@ -123,6 +134,9 @@ export default function Menu() {
 
         {/* Fast Food Section */}
         <FastFood />
+
+        {/* Cart Summary */}
+        <CartSummary />
 
         {/* Footer */}
         <Footer />
