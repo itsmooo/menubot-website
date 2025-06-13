@@ -8,6 +8,9 @@ import NotFound from "./pages/NotFound";
 import { OrderList } from "./components/admin/OrderList";
 import Menu from "./components/Menu";
 import { CartProvider } from "./contexts/CartContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { LoginForm } from "./components/auth/LoginForm";
+import { RegisterForm } from "./components/auth/RegisterForm";
 
 const queryClient = new QueryClient();
 
@@ -16,14 +19,18 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <BrowserRouter>
-        <CartProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin" element={<OrderList />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/admin" element={<OrderList />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

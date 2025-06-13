@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, LogOut } from "lucide-react";
 import { ChatDialog } from "./ChatDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <nav className="flex items-center justify-between py-4 w-full">
@@ -124,6 +134,46 @@ const Navbar = () => {
 
       <div className="flex items-center space-x-4">
         <ShoppingBag className="h-6 w-6" />
+        {user ? (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/login')}
+              className="text-orange-500 bg-white hover:text-orange-600"
+            >
+              Login
+            </Button>
+            <Button
+              onClick={() => navigate('/register')}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Register
+            </Button>
+          </div>
+        )}
         <Button
           onClick={() => setIsChatOpen(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full"
