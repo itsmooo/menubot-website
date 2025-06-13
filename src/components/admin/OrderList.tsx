@@ -16,7 +16,7 @@ import Navbar from "../Navbar";
 import Footer from "../Footer";
 
 export const OrderList = () => {
-  const { data: orders = [], isLoading, isError, error } = useOrders();
+  const { orders = [], isLoading, isError, error } = useOrders();
 
   return (
     <div className="flex flex-col min-h-screen">

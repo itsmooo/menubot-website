@@ -180,9 +180,11 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
     return null
   }
 
-  // Create order in backend
-  const createOrder = async (items: OrderItem[], totalAmount: number): Promise<string> => {
+  // Create order in backend - MODIFIED to handle errors gracefully
+  const createOrder = async (items: OrderItem[], totalAmount: number): Promise<string | null> => {
     try {
+      console.log("Creating order with items:", items, "total:", totalAmount)
+
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",
         headers: {
@@ -197,19 +199,27 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to create order")
+        console.warn("Order creation failed with status:", response.status)
+        return null
       }
 
       const orderData = await response.json()
+      console.log("Order created successfully:", orderData)
       return orderData._id
     } catch (error) {
       console.error("Error creating order:", error)
-      throw error
+      return null // Return null instead of throwing error
     }
   }
 
-  // Update payment status
-  const updatePaymentStatus = async (orderId: string, phone: string) => {
+  // Update payment status - MODIFIED to handle errors gracefully
+  const updatePaymentStatus = async (orderId: string | null, phone: string): Promise<boolean> => {
+    // If no orderId, skip updating payment status
+    if (!orderId) {
+      console.log("No order ID available, skipping payment status update")
+      return false
+    }
+
     try {
       const response = await fetch(`http://localhost:3000/api/orders/${orderId}/payment`, {
         method: "PUT",
@@ -224,13 +234,16 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update payment status")
+        console.warn("Payment status update failed with status:", response.status)
+        return false
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log("Payment status updated successfully:", result)
+      return true
     } catch (error) {
       console.error("Error updating payment status:", error)
-      throw error
+      return false
     }
   }
 
@@ -264,6 +277,7 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
     ])
   }
 
+  // MODIFIED to prioritize sending payment request even if order creation fails
   const processPayment = async (phone: string, amount: number) => {
     setPaymentStep("processing")
     setIsLoading(true)
@@ -291,15 +305,22 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
         return
       }
 
-      // Create order if not already created
+      // Try to create order but continue even if it fails
       let orderId = currentOrder.orderId
       if (!orderId) {
-        orderId = await createOrder(currentOrder.items, currentOrder.total)
-        setCurrentOrder((prev) => (prev ? { ...prev, orderId } : null))
-        setOrderCreated(true)
+        try {
+          orderId = await createOrder(currentOrder.items, currentOrder.total)
+          if (orderId) {
+            setCurrentOrder((prev) => (prev ? { ...prev, orderId } : null))
+            setOrderCreated(true)
+          }
+        } catch (orderError) {
+          console.error("Order creation failed but continuing with payment:", orderError)
+        }
       }
 
-      // Process payment
+      // Process payment - this is the critical part that must succeed
+      console.log("Sending payment request to Hormuud:", { phone, amount })
       const response = await fetch("http://localhost:3000/api/payment/hormuud", {
         method: "POST",
         headers: {
@@ -310,14 +331,19 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Payment failed")
+        throw new Error("Payment request failed")
       }
 
       const paymentResult = await response.json()
+      console.log("Payment request sent successfully:", paymentResult)
 
-      // Update payment status in order
-      if (orderId) {
-        await updatePaymentStatus(orderId, phone)
+      // Try to update payment status but continue even if it fails
+      try {
+        if (orderId) {
+          await updatePaymentStatus(orderId, phone)
+        }
+      } catch (statusError) {
+        console.error("Payment status update failed but payment was sent:", statusError)
       }
 
       setMessages((prev) => [
@@ -327,7 +353,7 @@ export function ChatDialog({ isOpen, onClose }: ChatDialogProps) {
           content: `✅ Codsiga lacag bixinta waa la diray! 
                📱 Telefoon: ${phone}
                💰 Lacagta: $${amount}
-               🧾 Lambarka Dalabka: #${orderId?.substring(0, 8) || "N/A"}
+               ${orderId ? `🧾 Lambarka Dalabka: #${orderId.substring(0, 8)}` : ""}
                
                🔔 Eeg telefoonkaaga - waxaad heli doontaa fariin lacag bixinta ah.
                Riix "OK" ama "Confirm" si aad u xaqiijiso lacag bixinta.

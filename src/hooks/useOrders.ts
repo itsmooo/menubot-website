@@ -50,4 +50,16 @@ export const useOrders = () => {
       toast.error('Failed to update payment status');
     },
   });
+  
+  // Return the query results and mutations
+  return {
+    orders,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    updateOrder: updateOrderMutation.mutate,
+    updatePaymentStatus: updatePaymentStatusMutation.mutate,
+    isUpdating: updateOrderMutation.isPending || updatePaymentStatusMutation.isPending
+  };
 };

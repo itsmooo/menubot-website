@@ -5,6 +5,12 @@ export interface Order {
   message: string;
   response: string;
   timestamp: string;
+  status?: string;
+  paymentStatus?: string;
+  items?: any[];
+  totalAmount?: number;
+  createdAt?: string;
+  user?: any;
 }
 
 export const orderService = {
@@ -12,7 +18,7 @@ export const orderService = {
     try {
       console.log('Fetching orders...');
       // Use the admin-specific endpoint for fetching all orders
-      const response = await api.get('/order');
+      const response = await api.get('/api/orders');
       console.log('Raw orders response:', response.data);
       return response.data.map((order: any) => ({
         _id: order._id,
@@ -23,7 +29,7 @@ export const orderService = {
         createdAt: order.createdAt,
         message: order.message,
         response: order.response,
-        timestamp: order.timestamp,
+        timestamp: order.timestamp || order.createdAt, // Fallback to createdAt if timestamp is missing
         user: order.user
       }));
     } catch (error) {
@@ -35,7 +41,7 @@ export const orderService = {
   updateOrder: async (orderId: string, data: Partial<Order>): Promise<Order> => {
     try {
       console.log(`Updating order ${orderId} with data:`, data);
-      const response = await api.put(`/order/${orderId}`, {
+      const response = await api.put(`/api/orders/${orderId}/status`, {
         status: data.status
       });
       return response.data;
@@ -48,7 +54,7 @@ export const orderService = {
   updatePaymentStatus: async (orderId: string, paymentStatus: string): Promise<Order> => {
     try {
       console.log(`Updating payment status for order ${orderId} to ${paymentStatus}`);
-      const response = await api.put(`/order/${orderId}/payment`, {
+      const response = await api.put(`/api/orders/${orderId}/payment`, {
         paymentStatus
       });
       return response.data;
