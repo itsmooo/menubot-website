@@ -15,6 +15,13 @@ import { Trash2, RefreshCcw, Filter } from "lucide-react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 
+// Helper function to sanitize HTML tags from text
+const sanitizeText = (text: string): string => {
+  if (!text) return "";
+  // Remove HTML tags and return plain text
+  return text.replace(/<\/?[^>]+(>|$)/g, "").trim();
+};
+
 export const OrderList = () => {
   const { orders = [], isLoading, isError, error } = useOrders();
 
@@ -86,13 +93,19 @@ export const OrderList = () => {
                 <TableHeader>
                   <TableRow className="bg-orange-50/50">
                     <TableHead className="text-orange-950 font-semibold">
-                      Message
+                      Customer
                     </TableHead>
                     <TableHead className="text-orange-950 font-semibold">
-                      Response
+                      Items
                     </TableHead>
                     <TableHead className="text-orange-950 font-semibold">
-                      Timestamp
+                      Total Amount
+                    </TableHead>
+                    <TableHead className="text-orange-950 font-semibold">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-orange-950 font-semibold">
+                      Date
                     </TableHead>
                     <TableHead className="text-orange-950 font-semibold text-right">
                       Actions
@@ -106,16 +119,34 @@ export const OrderList = () => {
                         key={`${order._id}-${index}`}
                         className="hover:bg-orange-50/50 transition-colors"
                       >
-                        <TableCell className="text-gray-700 whitespace-normal break-words max-w-[300px] py-4">
-                          {order?.message || "No message"}
+                        <TableCell className="text-gray-700 whitespace-normal break-words max-w-[200px] py-4">
+                          {order?.user?.name || "Unknown"}
+                          <div className="text-xs text-gray-500">{order?.user?.email || ""}</div>
                         </TableCell>
-                        <TableCell className="text-gray-700 whitespace-normal break-words max-w-[300px] py-4">
-                          {order?.response || "No response"}
+                        <TableCell className="text-gray-700 whitespace-normal break-words max-w-[200px] py-4">
+                          {order?.items?.map((item, i) => (
+                            <div key={i} className="mb-1">
+                              {sanitizeText(item.name)} x{item.quantity}
+                            </div>
+                          )) || "No items"}
+                        </TableCell>
+                        <TableCell className="text-gray-700 py-4">
+                          ${order?.totalAmount?.toFixed(2) || "0.00"}
+                        </TableCell>
+                        <TableCell className="text-gray-700 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            order.status === 'paid' ? 'bg-green-100 text-green-800' :
+                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            order.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order?.status || "pending"}
+                          </span>
                         </TableCell>
                         <TableCell className="text-gray-600 py-4">
-                          <span className="bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
+                          <span className="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full">
                             {format(
-                              new Date(order.timestamp),
+                              new Date(order.createdAt || order.timestamp || new Date()),
                               "MMM dd, yyyy, h:mm a"
                             )}
                           </span>

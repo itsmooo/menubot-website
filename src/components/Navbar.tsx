@@ -138,13 +138,19 @@ const Navbar = () => {
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button variant="ghost" className="relative rounded-full flex items-center gap-2 px-3 py-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
+                  <span className="font-medium">{user.name}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {user.role === 'admin' && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <span>Admin Dashboard</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={() => {
                     logout();
