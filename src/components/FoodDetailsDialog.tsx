@@ -19,7 +19,7 @@ interface FoodDetailsProps {
     };
     allergens?: string[];
     preparationTime?: string;
-    spicyLevel?: 'Mild' | 'Medium' | 'Hot';
+    spicyLevel?: string;
   };
 }
 
