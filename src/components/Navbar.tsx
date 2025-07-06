@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { ShoppingBag, LogOut } from "lucide-react";
 import { ChatDialog } from "./ChatDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ const Navbar = () => {
   return (
     <nav className="flex items-center justify-between py-4 w-full">
       <div className="flex items-center">
-        <a href="/" className="flex items-center">
+        <Link to="/" className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="163"
@@ -104,32 +104,28 @@ const Navbar = () => {
               </text>
             </g>
           </svg>
-          {/* <span className="text-2xl font-bold ml-2">QUICKEAT</span> */}
-        </a>
+        </Link>
       </div>
 
       <div className="hidden lg:flex items-center space-x-8">
-        <a href="/" className="hover:text-orange-500 font-medium">
+        <Link to="/" className="hover:text-orange-500 font-medium">
           Home
-        </a>
-        <a href="/about" className="hover:text-orange-500 font-medium">
+        </Link>
+        <Link to="/about" className="hover:text-orange-500 font-medium">
           About Us
-        </a>
-        <a href="/restaurants" className="hover:text-orange-500 font-medium">
+        </Link>
+        <Link to="/restaurants" className="hover:text-orange-500 font-medium">
           Restaurants
-        </a>
-        <a href="/pages" className="hover:text-orange-500 font-medium">
-          Pages
-        </a>
-        <a href="/contacts" className="hover:text-orange-500 font-medium">
-          Contacts
-        </a>
-        <a href="/menu" className="hover:text-orange-500 font-medium">
-          menu
-        </a>
-        <a href="/admin" className="hover:text-orange-500 font-medium">
-          admin
-        </a>
+        </Link>
+        <Link to="/menu" className="hover:text-orange-500 font-medium">
+          Menu
+        </Link>
+        <Link to="/contact" className="hover:text-orange-500 font-medium">
+          Contact
+        </Link>
+        <Link to="/admin" className="hover:text-orange-500 font-medium">
+          Admin
+        </Link>
       </div>
 
       <div className="flex items-center space-x-4">
