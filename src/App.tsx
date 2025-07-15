@@ -13,6 +13,8 @@ import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LoginForm } from "./components/auth/LoginForm";
 import { RegisterForm } from "./components/auth/RegisterForm";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import AccessDenied from "./components/AccessDenied";
 
 const queryClient = new QueryClient();
 
@@ -25,13 +27,21 @@ const App = () => (
           <CartProvider>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/admin" element={<OrderList />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <OrderList />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/menu" element={<Menu />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/restaurants" element={<Restaurants />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<RegisterForm />} />
+              <Route path="/access-denied" element={<AccessDenied />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </CartProvider>

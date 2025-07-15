@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { ShoppingBag, LogOut } from "lucide-react";
+import { ShoppingBag, LogOut, Menu, X } from "lucide-react";
 import { ChatDialog } from "./ChatDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -13,11 +13,12 @@ import {
 
 const Navbar = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <nav className="flex items-center justify-between py-4 w-full">
+    <nav className="flex items-center justify-between py-4 w-full relative">
       <div className="flex items-center">
         <Link to="/" className="flex items-center">
           <svg
@@ -123,13 +124,25 @@ const Navbar = () => {
         <Link to="/contact" className="hover:text-orange-500 font-medium">
           Contact
         </Link>
-        <Link to="/admin" className="hover:text-orange-500 font-medium">
-          Admin
-        </Link>
+        {user?.role === 'admin' && (
+          <Link to="/admin" className="hover:text-orange-500 font-medium">
+            Admin
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center space-x-4">
         <ShoppingBag className="h-6 w-6" />
+        
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          className="lg:hidden"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </Button>
+        
         {user ? (
           <>
             <DropdownMenu>
@@ -185,6 +198,69 @@ const Navbar = () => {
       </div>
 
       <ChatDialog isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      
+      {/* Mobile menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+          <div className="flex flex-col space-y-4 p-4">
+            <Link 
+              to="/" 
+              className="hover:text-orange-500 font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/about" 
+              className="hover:text-orange-500 font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              About Us
+            </Link>
+            <Link 
+              to="/restaurants" 
+              className="hover:text-orange-500 font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Restaurants
+            </Link>
+            <Link 
+              to="/menu" 
+              className="hover:text-orange-500 font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Menu
+            </Link>
+            <Link 
+              to="/contact" 
+              className="hover:text-orange-500 font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact
+            </Link>
+            {user?.role === 'admin' && (
+              <Link 
+                to="/admin" 
+                className="hover:text-orange-500 font-medium py-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Admin
+              </Link>
+            )}
+            <div className="pt-4 border-t border-gray-200">
+              <Button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsChatOpen(true);
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+              >
+                ORDER NOW
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
